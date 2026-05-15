@@ -12,20 +12,23 @@ public class NotificationController { // <-- Abre la clase
     @Autowired
     private EmailService emailService;
 
-    @PostMapping("/send-test")
+   @PostMapping("/send-test")
     public String enviarPrueba(@RequestBody Map<String, String> body) {
         String email = body.get("email");
         String mascota = body.get("mascota");
-        // Capturamos el mensaje dinámico del frontend
         String mensajeUsuario = body.get("mensaje"); 
         
-        // Armamos un cuerpo descriptivo
-        String cuerpoFinal = "¡Hola! Tenemos noticias de " + mascota + ".\n\n" +
-                             "Un usuario te ha enviado el siguiente mensaje:\n" +
-                             "\"" + mensajeUsuario + "\"\n\n" +
-                             "¡Revisa la app para más detalles!";
+        // 1. Intentamos sacar el asunto que viene del BFF. 
+        // Si por alguna razón viene vacío, le dejamos uno por defecto que SÍ active el 'if' de la plantilla.
+        String asunto = body.getOrDefault("asunto", "Alerta de avistamiento de " + mascota);
         
-        emailService.enviarCorreo(email, "¡Noticias de " + mascota + "!", cuerpoFinal);
+        // 2. IMPORTANTE: Ahora para la plantilla de SendGrid, el "cuerpoMensaje" 
+        // debe ser ÚNICAMENTE el texto que escribió el usuario ("Andaba buscando gatas..."), 
+        // ya que el diseño del HTML se encarga de poner los títulos y el botón.
+        String cuerpoFinal = mensajeUsuario;
+        
+        // 3. Enviamos los datos limpios al servicio
+        emailService.enviarCorreo(email, asunto, cuerpoFinal);
         
         return "Correo enviado a " + email;
     }
