@@ -24,13 +24,13 @@ public class EmailService {
     @Value("${sendgrid.template.id}")
     private String templateId;
     // Añadimos @Async si decidiste usarlo para que no bloquee el front
-    public void enviarCorreo(String destinatario, String asunto, String cuerpoMensaje) {
+  public void enviarCorreo(String destinatario, String asunto, String cuerpoMensaje) {
+        System.out.println("LOG CRUCIAL -> Asunto recibido en el Servicio: [" + asunto + "]");
         Email from = new Email(fromEmail);
         Email to = new Email(destinatario);
         
         Mail mail = new Mail();
         mail.setFrom(from);
-        mail.setSubject(asunto); // Mantenemos el asunto original
 
         // 🟢 INTERCEPTAMOS: ¿Es una alerta de mascota de Sanos y Salvos?
         if (asunto != null && (asunto.toLowerCase().contains("avistamiento") || asunto.toLowerCase().contains("noticias"))) {
@@ -38,12 +38,15 @@ public class EmailService {
             // 1. Vinculamos el ID de la plantilla dinámica de SendGrid
             mail.setTemplateId(templateId);
 
-            // 2. Mapeamos las variables que pusiste entre llaves {{{ }}} en tu HTML
+            // 2. Creamos la personalización
             Personalization personalization = new Personalization();
             personalization.addTo(to);
             
-            // Pasamos el nombre por defecto o lo extraemos, aquí usamos Doraemon de prueba
-            // Si el nombre viene en el asunto o cuerpo, podrías procesarlo, por ahora lo dejamos estático
+            // 🟢 SOLUCIÓN AL ASUNTO: Se lo inyectamos directamente a la personalización
+            personalization.setSubject(asunto); 
+            
+            // 🟢 POR SI ACASO: También lo enviamos como variable por si lo usas en el HTML con {{{subject}}}
+            personalization.addDynamicTemplateData("subject", asunto);
             personalization.addDynamicTemplateData("nombre_mascota", "tu mascota");
             personalization.addDynamicTemplateData("mensaje", cuerpoMensaje);
 

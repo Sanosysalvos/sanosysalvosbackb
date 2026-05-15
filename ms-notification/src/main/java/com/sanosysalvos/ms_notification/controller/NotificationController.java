@@ -14,6 +14,7 @@ public class NotificationController { // <-- Abre la clase
 
    @PostMapping("/send-test")
     public String enviarPrueba(@RequestBody Map<String, String> body) {
+        
         String email = body.get("email");
         String mascota = body.get("mascota");
         String mensajeUsuario = body.get("mensaje"); 
