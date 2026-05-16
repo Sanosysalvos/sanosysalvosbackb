@@ -10,6 +10,7 @@ import com.sendgrid.helpers.mail.objects.Email;
 import com.sendgrid.helpers.mail.objects.Personalization;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import java.io.IOException;
 
@@ -24,8 +25,11 @@ public class EmailService {
     @Value("${sendgrid.template.id}")
     private String templateId;
     // Añadimos @Async si decidiste usarlo para que no bloquee el front
+  @Async
   public void enviarCorreo(String destinatario, String asunto, String cuerpoMensaje) {
-        System.out.println("LOG CRUCIAL -> Asunto recibido en el Servicio: [" + asunto + "]");
+// 🟢 LOG DEL SERVICIO (Muestra el hilo secundario)
+    System.out.println("🚀 [HILO SERVICIO] Procesando SendGrid de fondo en: " + Thread.currentThread().getName());
+    System.out.println("LOG CRUCIAL -> Asunto recibido en el Servicio: [" + asunto + "]");
         Email from = new Email(fromEmail);
         Email to = new Email(destinatario);
         
